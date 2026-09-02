@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing Flow</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00f5d4;
+            --secondary: #7b2ff7;
+            --accent: #f72585;
+            --bg: #030308;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        canvas#particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 1;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 1;
+            animation: orbFloat 12s ease-in-out infinite alternate;
+        }
+
+        .glow-orb.a {
+            width: 500px;
+            height: 500px;
+            background: var(--secondary);
+            opacity: 0.08;
+            top: 20%;
+            left: 10%;
+        }
+
+        .glow-orb.b {
+            width: 400px;
+            height: 400px;
+            background: var(--accent);
+            opacity: 0.06;
+            bottom: 10%;
+            right: 10%;
+            animation-delay: -4s;
+        }
+
+        .glow-orb.c {
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            opacity: 0.05;
+            top: 60%;
+            left: 50%;
+            animation-delay: -8s;
+        }
+
+        @keyframes orbFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(40px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 40px) scale(0.9); }
+            100% { transform: translate(30px, 20px) scale(1.05); }
+        }
+
+        .scene {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .title-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .title-bg {
+            position: absolute;
+            inset: -40px -60px;
+            background: radial-gradient(ellipse, rgba(123, 47, 247, 0.08), transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 900;
+            color: transparent;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 50%, var(--secondary) 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: gradientShift 6s ease-in-out infinite;
+            position: relative;
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .glitch::before {
+            color: var(--primary);
+            z-index: -1;
+            animation: glitch1 4s infinite linear alternate-reverse;
+            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+        }
+
+        .glitch::after {
+            color: var(--accent);
+            z-index: -2;
+            animation: glitch2 3s infinite linear alternate-reverse;
+            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+        }
+
+        @keyframes glitch1 {
+            0%, 93%, 100% { transform: translate(0); }
+            94% { transform: translate(-8px, 2px); }
+            95% { transform: translate(6px, -1px); }
+            96% { transform: translate(-4px, 1px); }
+            97% { transform: translate(3px, -2px); }
+            98% { transform: translate(-2px, 0); }
+        }
+
+        @keyframes glitch2 {
+            0%, 95%, 100% { transform: translate(0); }
+            96% { transform: translate(6px, -2px); }
+            97% { transform: translate(-5px, 1px); }
+            98% { transform: translate(3px, -1px); }
+            99% { transform: translate(-1px, 2px); }
+        }
+
+        .subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(0.75rem, 2vw, 1rem);
+            color: rgba(255, 255, 255, 0.25);
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid var(--primary);
+            width: 0;
+            animation: typing 2s steps(20) 0.5s forwards, blink 0.8s step-end infinite;
+        }
+
+        @keyframes typing {
+            to { width: 100%; }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 100px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.1em;
+            animation: fadeSlideUp 1s ease 1.5s both;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: dotPulse 2s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        .status-bar span {
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .status-bar span:nth-child(2) { animation-delay: 2s; }
+        .status-bar span:nth-child(3) { animation-delay: 2.3s; }
+        .status-bar span:nth-child(4) { animation-delay: 2.6s; }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .corner {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            z-index: 10;
+            opacity: 0.15;
+        }
+
+        .corner::before,
+        .corner::after {
+            content: '';
+            position: absolute;
+            background: var(--primary);
+        }
+
+        .corner.tl { top: 30px; left: 30px; }
+        .corner.tl::before { width: 20px; height: 1px; top: 0; left: 0; }
+        .corner.tl::after { width: 1px; height: 20px; top: 0; left: 0; }
+
+        .corner.tr { top: 30px; right: 30px; }
+        .corner.tr::before { width: 20px; height: 1px; top: 0; right: 0; }
+        .corner.tr::after { width: 1px; height: 20px; top: 0; right: 0; }
+
+        .corner.bl { bottom: 30px; left: 30px; }
+        .corner.bl::before { width: 20px; height: 1px; bottom: 0; left: 0; }
+        .corner.bl::after { width: 1px; height: 20px; bottom: 0; left: 0; }
+
+        .corner.br { bottom: 30px; right: 30px; }
+        .corner.br::before { width: 20px; height: 1px; bottom: 0; right: 0; }
+        .corner.br::after { width: 1px; height: 20px; bottom: 0; right: 0; }
+
+        .flow-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .flow-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.06;
+            animation: flowAcross linear infinite;
+        }
+
+        .flow-line:nth-child(1) { top: 15%; width: 30%; animation-duration: 8s; }
+        .flow-line:nth-child(2) { top: 35%; width: 20%; animation-duration: 12s; animation-delay: 2s; }
+        .flow-line:nth-child(3) { top: 55%; width: 25%; animation-duration: 10s; animation-delay: 4s; }
+        .flow-line:nth-child(4) { top: 75%; width: 15%; animation-duration: 14s; animation-delay: 1s; }
+        .flow-line:nth-child(5) { top: 90%; width: 22%; animation-duration: 9s; animation-delay: 6s; }
+
+        @keyframes flowAcross {
+            0% { left: -30%; opacity: 0; }
+            10% { opacity: 0.06; }
+            90% { opacity: 0.06; }
+            100% { left: 110%; opacity: 0; }
+        }
+
+        .hex {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            z-index: 2;
+            opacity: 0.03;
+            animation: hexSpin 30s linear infinite;
+        }
+
+        .hex:nth-child(1) { top: 10%; right: 15%; }
+        .hex:nth-child(2) { bottom: 20%; left: 8%; animation-direction: reverse; animation-duration: 25s; }
+
+        @keyframes hexSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, rgba(0, 245, 212, 0.15) 50%, transparent 100%);
+            z-index: 5;
+            animation: scanDown 5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanDown {
+            0% { top: -2px; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .mouse-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(123, 47, 247, 0.06), transparent 70%);
+            pointer-events: none;
+            z-index: 3;
+            transform: translate(-50%, -50%);
+            transition: left 0.3s ease, top 0.3s ease;
+        }
+
+        .flicker {
+            animation: flicker 8s linear infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 1; }
+            92.5% { opacity: 0.6; }
+            93% { opacity: 1; }
+            93.5% { opacity: 0.8; }
+            94% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <div class="glow-orb a"></div>
+    <div class="glow-orb b"></div>
+    <div class="glow-orb c"></div>
+
+    <div class="flow-lines">
+        <div class="flow-line"></div>
+        <div class="flow-line"></div>
+        <div class="flow-line"></div>
+        <div class="flow-line"></div>
+        <div class="flow-line"></div>
+    </div>
+
+    <svg class="hex" viewBox="0 0 100 100">
+        <polygon points="50,1 93,25 93,75 50,99 7,75 7,25" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
+    </svg>
+    <svg class="hex" viewBox="0 0 100 100">
+        <polygon points="50,1 93,25 93,75 50,99 7,75 7,25" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
+    </svg>
+
+    <div class="scan-line"></div>
+    <div class="mouse-glow" id="mouseGlow"></div>
+
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <div class="scene">
+        <div class="title-wrapper">
+            <div class="title-bg"></div>
+            <h1 class="glitch flicker" data-text="Testing Flow">Testing Flow</h1>
+        </div>
+        <div class="subtitle">Validate. Discover. Ship.</div>
+        <div class="status-bar">
+            <div class="dot"></div>
+            <span>SYSTEM READY</span>
+            <span>&mdash;</span>
+            <span>SCANNING FOR TRUTH</span>
+        </div>
+    </div>
+
+    <canvas id="particles"></canvas>
+
+    <script>
+        // Particle system
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: 0, y: 0 };
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
+                this.opacity = Math.random() * 0.5 + 0.1;
+                this.color = Math.random() > 0.7
+                    ? 'rgba(0, 245, 212,'
+                    : Math.random() > 0.5
+                        ? 'rgba(123, 47, 247,'
+                        : 'rgba(247, 37, 133,';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Mouse interaction
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 150) {
+                    this.x -= dx * 0.005;
+                    this.y -= dy * 0.005;
+                }
+
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color + this.opacity + ')';
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 80; i++) {
+            particles.push(new Particle());
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120) {
+                        const opacity = (1 - dist / 120) * 0.08;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(0, 245, 212, ${opacity})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            connectParticles();
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Mouse tracking
+        const glow = document.getElementById('mouseGlow');
+        document.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+        });
+    </script>
+</body>
+</html>
