@@ -47,34 +47,6 @@ Urutan yang benar:
 
 > **CRAZY bukan berarti mustahil.** Ini adalah hal yang *wajar* dilakukan orang sungguhan di kondisi nyata — bukan skenario rekayasa teknis.
 
-### Lensa Analisis — Perspektif Perilaku Nyata
-
-> Tiga sudut pandang dari analisis produk yang membantu menulis skenario lebih tajam. Bukan tools — hanya pola berpikir.
-
-| Lensa | Fokus | Pertanyaan kunci | Penerapan di workflow |
-|-------|-------|-------------------|----------------------|
-| **Funnel** | Urutan langkah & di mana orang berhenti | Di langkah mana biasanya aktor gagal atau abort? | Skenario HAPPY jadi berlapis per langkah; setiap step bisa gagal sendiri |
-| **Usage-based** | Apa yang benar-benar dipakai vs apa yang ada | Fitur apa yang sering dipakai? Yang ada tapi tidak pernah disentuh? | Cakupan test fokus ke fitur yang dipakai; urutan test berdasarkan frekuensi pemakaian |
-| **Frustration signals** | Perilaku saat pengguna kesulitan | Kapan aktor rage-click, refresh berulang, atau abort tengah jalan? | Sumber utama skenario CRAZY; ekspektasi = sistem tidak korup saat tekanan manusia |
-
-> **Funnel** memecah alur menjadi langkah-langkah — drop-off di satu langkah = calon skenario FAILED.
-> **Usage-based** memastikan test fokus pada yang benar-benar dipakai, bukan yang sekadar ada di kode.
-> **Frustration signals** mengubah CRAZY dari imajinasi menjadi perilaku yang bisa direproduksi (rage click, rapid refresh, abandonment).
-
----
-
-## KONFIRMASI DI ALUR WORKFLOW
-
-> Ada **3 titik konfirmasi** di mana user harus menyetujui sebelum agent lanjut. Agent **tidak boleh** melewati titik-titik ini tanpa persetujuan user.
-
-| # | Titik konfirmasi | Lokasi di alur | Pertanyaan ke user | Opsi |
-|---|-----------------|----------------|--------------------|------|
-| **K1** | Env test | Sebelum screening | Apakah perlu env test untuk melindungi database produksi? | 1. Buat `.env.testing` (SQLite in-memory) — produksi aman & otomatis · 2. Buat database test terpisah (mis. `skorcast_test`) — tetap pakai DB yang sama tapi terisolasi · 3. Tidak perlu ubah — `phpunit.xml` sudah arahkan ke SQLite |
-| **K2** | Runner | Sebelum test berjalan | Runner apa yang dipakai? | 1. `php artisan test` · 2. `./vendor/bin/phpunit` · 3. Input sendiri (tulis perintah runner yang kamu pakai) |
-| **K3** | Keputusan bug | Di sesi sidang (Bagian D) | Apakah temuan ini bug sungguhan yang perlu ditindaklanjuti? | 1. Ya, ini bug → buat task · 2. Bukan bug, ini behavior → catat & lanjutkan · 3. Belum jelas → buktikan dulu, baru putuskan |
-
-> Untuk K1 & K2: berikan opsi di atas ke user, dan **jika opsi tidak mencukupi, user bisa input sendiri**. Agent tidak boleh memilih tanpa persetujuan.
-
 ---
 
 ## BAGIAN A — PERINTAH SCREENING (agent jalankan pertama)
@@ -87,15 +59,12 @@ SCREENING (read-only, no edits, no test run yet):
 1. Baca actors.md yang sudah ada — pahami ekspektasi nyata per aktor.
 2. Baca struktur project di [PROJECT_PATH]: framework, folder inti, logika inti.
 3. Profil BASE APP: nama, fungsi, alur utama, pemakai, aturan keras — catat ke base-app.md.
-4. Periksa apakah env test sudah ada (.env.testing, database test terpisah, dll.) — JANGAN ubah, cukup catat temuan.
-5. Temukan cara menjalankan test (runner) yang tersedia di project — catat semua runner yang bisa dipakai (bukan hanya yang "default").
-6. **KONFIRMASI K1 — Env test:** laporkan temuan env test + usulkan opsi → tunggu keputusan user sebelum lanjut.
-7. **KONFIRMASI K2 — Runner:** laporkan runner yang tersedia + usulkan opsi → tunggu keputusan user sebelum lanjut.
-8. Lakukan GAP ANALYSIS: untuk setiap skenario nyata di actors.md, apakah kode menanganinya?
+4. Temukan cara menjalankan test (runner) — catat perintah pastinya.
+5. Lakukan GAP ANALYSIS: untuk setiap skenario nyata di actors.md, apakah kode menanganinya?
    - Catat skenario yang tidak ada handler-nya (ini calon bug paling berharga).
    - Catat skenario yang ada handler-nya tapi perlu diverifikasi lewat test.
-9. JANGAN buat daftar aktor baru dari kode — aktor sudah didefinisikan user di actors.md.
-10. JANGAN mulai test. Laporkan gap analysis + usulan alur, tunggu evaluasi user.
+6. JANGAN buat daftar aktor baru dari kode — aktor sudah didefinisikan user di actors.md.
+7. JANGAN mulai test. Laporkan gap analysis + usulan alur, tunggu evaluasi user.
 ```
 
 ---
@@ -123,8 +92,6 @@ SCREENING (read-only, no edits, no test run yet):
 - Aturan keras:
 - Cara jalanin test (runner):
 - Alur prioritas test (usulan agent):
-- Env test: [sudah ada / belum / perlu dibuat]
-- Lensa yang diterapkan: [funnel / usage-based / frustration signals]
 ```
 
 ### B2 — isi `actors.md`
@@ -154,12 +121,9 @@ SCREENING (read-only, no edits, no test run yet):
 - Koneksi: [stabil/sering putus/tergantung lokasi]
 - Tekanan waktu: [santai/terburu-buru/di tengah acara]
 - Kebiasaan: [klik cepat, sering salah input, jarang baca instruksi, dll]
-- **Frustrasi yang sering muncul:** [rage click, refresh berulang, abort tengah jalan, dll]
 
 **Cakupan di aplikasi:**
 - [Fitur/halaman yang mereka akses]
-
-**Frekuensi pemakaian:** [harian / mingguan / sesekali]
 
 **Titik risiko nyata:**
 - [Skenario nyata yang bisa menyebabkan masalah bagi aktor ini]
@@ -186,7 +150,6 @@ Cakupan:
 1. [HAPPY — kondisi normal → hasil yang benar]
 2. [FAILED — kondisi gagal → sistem menolak/menangani dengan benar]
 3. [CRAZY — perilaku ekstrem nyata → sistem tidak crash/korup/kehilangan data]
-Lensa yang diterapkan: [funnel / usage-based / frustration signals — sesuai yang disepakati]
 Kriteria lolos: semua ter-cover, output jelas (hijau/merah).
 Jangan ubah kode produksi. Pakai runner: [PERINTAH_RUNNER].
 Lapor ke laporan/, pakai template.md — sebut file:baris tiap temuan.
@@ -218,10 +181,6 @@ Cakupan:
 
 **Jenis:** `HAPPY` = alur valid normal | `FAILED` = input/aksi invalid | `CRAZY` = perilaku ekstrem nyata
 
-### Temuan Tambahan (opsional — funnel & usage-based)
-- Drop-off di funnel: [langkah di mana aktor sering berhenti]
-- Fitur yang tidak dipakai: [fitur yang ada tapi tidak pernah disentuh aktor]
-
 ### Gap Analysis
 Skenario nyata yang dibutuhkan aktor tapi tidak ada handler-nya di kode:
 - [ ] [deskripsikan gap — ini lebih berharga dari test yang gagal]
@@ -229,10 +188,6 @@ Skenario nyata yang dibutuhkan aktor tapi tidak ada handler-nya di kode:
 ### Keputusan
 - [ ] F2: bug sungguhan? → perlu perbaikan kode
 - [ ] F3: crash karena CRAZY? → perlu di-guard | atau memang behavior yang bisa diterima?
-- [ ] Reproducible: [ya / tidak] — apakah bisa diulang dengan langkah yang sama?
-- [ ] Dampak: [aktif / prioritas / non-prioritas] — seberapa besar dampak jika tidak diperbaiki?
-
-> **Validasi sebelum jadi task:** sebuah temuan harus terbukti reproducible DAN berdampak nyata sebelum jadi task. Bukan hanya asumsi.
 
 ### Rekomendasi
 -
@@ -243,7 +198,6 @@ Skenario nyata yang dibutuhkan aktor tapi tidak ada handler-nya di kode:
 ## BAGIAN C — RUNNER (tetap pakai yang ada)
 - Jalankan dari `[PROJECT_PATH]` dengan perintah: `[PERINTAH_RUNNER]`
 - Jangan ganti runner — pakai yang sudah disediakan project.
-- Jika ada beberapa runner yang tersedia, user yang menentukan mana yang dipakai melalui **KONFIRMASI K2**.
 
 ---
 
@@ -253,11 +207,6 @@ Skenario nyata yang dibutuhkan aktor tapi tidak ada handler-nya di kode:
    > `actors.md` adalah dokumen milikmu — agent hanya mengusulkan, kamu yang memutuskan.
 3. Pilih aktor + alur dari gap analysis → isi `prompt.md`, kirim ke agent.
    > Prioritaskan gap (skenario tanpa handler) di atas skenario yang sudah punya kode — gap lebih mungkin temukan bug nyata.
-4. **KONFIRMASI K3 — sebelum agent jalanin test:** pastikan lensa yang diterapkan sudah sesuai (funnel, usage-based, frustration signals) dan runner sudah ditentukan.
-5. Agent: **tulis ekspektasi dulu → buat test case → jalankan runner → catat ke `laporan/`** (copy template → `laporan/YYYY-MM-DD-[aktor]-[alur].md`).
-6. Kamu sidang via checkbox keputusan — perhatikan kolom Ekspektasi vs Hasil.
-7. **Validasi bug:** jika ditemukan baris merah, pastikan:
-   - [ ] Bisa direproduksi (langkah yang sama → hasil yang sama)
-   - [ ] Berdampak nyata pada aktor
-   - Baru buat task jika keduanya terpenuhi.
-8. Ulangi untuk aktor/alur lain — folder `.testapp/` terus bertambah, tidak ikut rilis.
+4. Agent: **tulis ekspektasi dulu → buat test case → jalankan runner → catat ke `laporan/`** (copy template → `laporan/YYYY-MM-DD-[aktor]-[alur].md`).
+5. Kamu sidang via checkbox keputusan — perhatikan kolom Ekspektasi vs Hasil.
+6. Ulangi untuk aktor/alur lain — folder `.testapp/` terus bertambah, tidak ikut rilis.
